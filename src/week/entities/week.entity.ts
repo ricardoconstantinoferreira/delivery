@@ -8,9 +8,9 @@ export class Week {
     id: number;
 
     @Column()
-    description: string;
+    days: string;
 
     @ManyToOne(() => Store)
     @JoinColumn({name: "store_id"})
-    store: Store;
+    store_id: number;
 }

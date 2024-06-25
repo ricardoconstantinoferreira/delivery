@@ -1,26 +1,72 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateWeekDto } from './dto/create-week.dto';
 import { UpdateWeekDto } from './dto/update-week.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Week } from './entities/week.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class WeekService {
-  create(createWeekDto: CreateWeekDto) {
-    return 'This action adds a new week';
+
+  constructor(
+    @InjectRepository(Week) private weekRepository: Repository<Week>,
+  ) {}
+
+  create(createWeekDto: CreateWeekDto): any {
+
+    try {
+      const {days, store_id} = createWeekDto;
+      let arrayDays = days.split(",");
+      let weekEntities = [];
+
+      for (let i = 0; i < arrayDays.length; i++) {
+        const weekEntity = new Week();
+        weekEntity.days = arrayDays[i].trim();
+        weekEntity.store_id = store_id;
+        this.weekRepository.save(weekEntity);
+        weekEntities.push(weekEntity);
+      }
+
+      return weekEntities;
+
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: 'Error updated store',
+      }, HttpStatus.FORBIDDEN, {
+        cause: error
+      });
+    }
   }
 
-  findAll() {
-    return `This action returns all week`;
+  findOne(id: number): Promise<Week> {
+    return this.weekRepository.findOneBy({id});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} week`;
+  findOneStore(store_id: number) {
+
+    return [];
   }
 
-  update(id: number, updateWeekDto: UpdateWeekDto) {
-    return `This action updates a #${id} week`;
-  }
+  async update(id: number, updateWeekDto: UpdateWeekDto) {
+    try {
 
-  remove(id: number) {
-    return `This action removes a #${id} week`;
+      const store = await this.findOne(id);
+
+      if ( store.id == undefined) {
+        throw new ForbiddenException();
+      }
+
+      await this.weekRepository.update(id, updateWeekDto);
+      return store;
+
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: 'Error updated store',
+      }, HttpStatus.FORBIDDEN, {
+        cause: error
+      });
+    }
   }
 }

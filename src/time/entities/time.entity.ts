@@ -1,5 +1,6 @@
 import { Store } from "src/stores/entities/store.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Week } from "src/week/entities/week.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Time {
@@ -13,4 +14,8 @@ export class Time {
     @ManyToOne(() => Store)
     @JoinColumn({name: "store_id"})
     store: Store;
+
+    @OneToOne(() => Week)
+    @JoinColumn({name: "week_id"})
+    week: Week;
 }
