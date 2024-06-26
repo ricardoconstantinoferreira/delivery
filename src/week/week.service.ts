@@ -4,6 +4,7 @@ import { UpdateWeekDto } from './dto/update-week.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Week } from './entities/week.entity';
 import { Repository } from 'typeorm';
+import { DateTime } from 'src/date/utils/date.time';
 
 @Injectable()
 export class WeekService {
@@ -12,7 +13,7 @@ export class WeekService {
     @InjectRepository(Week) private weekRepository: Repository<Week>,
   ) {}
 
-  create(createWeekDto: CreateWeekDto): any {
+  async create(createWeekDto: CreateWeekDto): Promise<Week[]> {
 
     try {
       const {days, store_id} = createWeekDto;
@@ -23,7 +24,7 @@ export class WeekService {
         const weekEntity = new Week();
         weekEntity.days = arrayDays[i].trim();
         weekEntity.store_id = store_id;
-        this.weekRepository.save(weekEntity);
+        await this.weekRepository.save(weekEntity);
         weekEntities.push(weekEntity);
       }
 
@@ -43,9 +44,14 @@ export class WeekService {
     return this.weekRepository.findOneBy({id});
   }
 
-  findOneStore(store_id: number) {
+  async findOneStore(store_id: number): Promise<object> {
+    let weeksResult = [];
+    let dateTime = new DateTime();
+    let days = await this.weekRepository.createQueryBuilder("week")
+      .where("store_id = :store_id", {store_id: store_id})
+      .execute();
 
-    return [];
+    return await dateTime.getTodayDate(days);
   }
 
   async update(id: number, updateWeekDto: UpdateWeekDto) {
