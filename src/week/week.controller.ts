@@ -26,9 +26,17 @@ export class WeekController {
 
   @Patch(':id')
   update(
-    @Param('id', new ParseIntPipe({errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE}))
-    id: number, @Body() updateWeekDto: UpdateWeekDto
+    @Param('id', new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE})) id: number, 
+    @Body() updateWeekDto: UpdateWeekDto
   ) {
     return this.weekService.update(id, updateWeekDto);
+  }
+
+  @Delete(':id')
+  remove(
+    @Param('id', new ParseIntPipe({errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE})) 
+    id: number
+  ) {
+    return this.weekService.remove(id);
   }
 }

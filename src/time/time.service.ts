@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTimeDto } from './dto/create-time.dto';
 import { UpdateTimeDto } from './dto/update-time.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Time } from './entities/time.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TimeService {
-  create(createTimeDto: CreateTimeDto) {
-    return 'This action adds a new time';
+
+  constructor(
+    @InjectRepository(Time) private timeRepository: Repository<Time>,
+  ) {}
+
+  create(createTimeDto: CreateTimeDto): Promise<Time> {
+    return this.timeRepository.save(createTimeDto);
   }
 
-  findAll() {
-    return `This action returns all time`;
+  findAll(): Promise<Time[]> {
+    return this.timeRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} time`;
+  findOne(id: number): Promise<Time> {
+    return this.timeRepository.findOneBy({id});
   }
 
-  update(id: number, updateTimeDto: UpdateTimeDto) {
-    return `This action updates a #${id} time`;
+  async update(id: number, updateTimeDto: UpdateTimeDto): Promise<Time | null> {
+    try {
+
+      const time = await this.findOne(id);
+
+      if ( time.id == undefined) {
+        throw new ForbiddenException();
+      }
+
+      await this.timeRepository.update(id, updateTimeDto);
+      return time;
+
+    } catch (error) {
+      throw new HttpException({
+        status: HttpStatus.FORBIDDEN,
+        error: 'Error updated time',
+      }, HttpStatus.FORBIDDEN, {
+        cause: error
+      });
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} time`;
+  async remove(id: number) {
+    await this.timeRepository.delete(id);
   }
 }

@@ -11,11 +11,14 @@ export class Time {
     @Column()
     description: string;
 
+    @Column('decimal', { precision: 6, scale: 2 })
+    price: number;
+
     @ManyToOne(() => Store)
     @JoinColumn({name: "store_id"})
-    store: Store;
+    store_id: number;
 
-    @OneToOne(() => Week)
+    @ManyToOne(() => Week)
     @JoinColumn({name: "week_id"})
-    week: Week;
+    week_id: number;
 }

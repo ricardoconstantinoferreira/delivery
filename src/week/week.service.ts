@@ -75,4 +75,8 @@ export class WeekService {
       });
     }
   }
+
+  async remove(id: number) {
+    await this.weekRepository.delete(id);
+  }
 }
