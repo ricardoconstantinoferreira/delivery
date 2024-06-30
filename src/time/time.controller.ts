@@ -20,8 +20,16 @@ export class TimeController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.timeService.findOne(+id);
+  findOne(@Param('id', new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE})) id: number) {
+    return this.timeService.findOne(id);
+  }
+
+  @Get(':store_id/:week_id')
+  findTime(
+    @Param('store_id', new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE})) store_id: number,
+    @Param('week_id', new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE})) week_id: number,
+  ) {
+    return this.timeService.findTime(store_id, week_id);
   }
 
   @Patch(':id')

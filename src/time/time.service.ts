@@ -4,6 +4,7 @@ import { UpdateTimeDto } from './dto/update-time.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Time } from './entities/time.entity';
 import { Repository } from 'typeorm';
+import { Currency } from 'src/date/utils/currency';
 
 @Injectable()
 export class TimeService {
@@ -18,6 +19,23 @@ export class TimeService {
 
   findAll(): Promise<Time[]> {
     return this.timeRepository.find();
+  }
+
+  async findTime(store_id: number, week_id: number): Promise<Time[]> {
+    let result = [];
+    let currency = new Currency();
+
+    let times = await this.timeRepository.createQueryBuilder("time")
+      .where("store_id = :store_id", {store_id: store_id})
+      .where("week_id = :week_id", {week_id: week_id})
+      .execute();
+
+    for (const key in times) {
+      let price = times[key]['time_price'];
+      result.push(times[key]['time_description'] + " " + currency.formatterPrice(price));
+    }
+
+    return result;
   }
 
   findOne(id: number): Promise<Time> {

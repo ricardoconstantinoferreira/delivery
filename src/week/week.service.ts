@@ -45,7 +45,6 @@ export class WeekService {
   }
 
   async findOneStore(store_id: number): Promise<object> {
-    let weeksResult = [];
     let dateTime = new DateTime();
     let days = await this.weekRepository.createQueryBuilder("week")
       .where("store_id = :store_id", {store_id: store_id})
